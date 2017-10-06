@@ -1,6 +1,6 @@
 FROM centos:7
 
-ENV NESSUS_VERSION="6.9.2"
+ENV NESSUS_VERSION="6.11.1"
 
 RUN set -x \
     && yum update -y \
