@@ -1,23 +1,22 @@
 FROM centos:7
 MAINTAINER Mike Nowak
 
-ENV NESSUS_VERSION="7.0.1"
+ENV NESSUS_VERSION="7.0.2"
 
 VOLUME ["/opt/nessus"]
 
 RUN set -x \
-  # Update the base image
   && yum update -y \
 
-  # Find the token 
-  && TOKEN=$(curl -ssl -o - "https://www.tenable.com/products/nessus/select-your-operating-system" | sed -n -e 's/.*id="timecheck" class="hidden">\(.*\)<\/div>.*/\1/p') \
+  # Find the download-id
+  && DOWNLOAD_ID=$(curl -ssl -o - "https://www.tenable.com/downloads/nessus" | sed -n -e 's/.*data-download-id="\([0-9]*\)".*data-file-name="\([a-zA-Z0-9_\.-]\+\-es7\.x86_64\.rpm\).*".*/\1/p') \
 
-  # Import GPG for Tanable
+  # Import Tanable's GPG key
   && rpm --import https://static.tenable.com/marketing/RPM-GPG-KEY-Tenable \
 
   # Fetch the rpm
   && curl -ssL -o /tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm \
-    "http://downloads.nessus.org/nessus3dl.php?file=Nessus-${NESSUS_VERSION}-es7.x86_64.rpm&licence_accept=yes&t=${TOKEN}" \
+    "https://tenable-downloads-production.s3.amazonaws.com/uploads/download/file/${DOWNLOAD_ID}/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm" \
 
   # Install the rpm
   && rpm -ivh /tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm \
@@ -26,6 +25,6 @@ RUN set -x \
   && rm /tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm \
   && yum clean all \
   && rm -rf /var/cache/yum
-  
+
 EXPOSE 8834
 CMD ["/opt/nessus/sbin/nessus-service"]
