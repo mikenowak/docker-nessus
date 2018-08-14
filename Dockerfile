@@ -37,7 +37,7 @@ RUN set -x \
   && rm -f /tmp/cookie \
   && yum clean all \
   && rm -rf /var/cache/yum \
-  && rm -rf /opt/nessus/var/nessus/{uuid,*.db*,master.key} \
+  && rm -rf /opt/nessus/var/nessus/{uuid,*.db*,master.key}
 
 EXPOSE 8834
 CMD ["/opt/nessus/sbin/nessus-service"]
