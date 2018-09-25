@@ -20,10 +20,14 @@ RUN set -x \
   && TOKEN=$(curl --cookie-jar /tmp/cookie -sSL -o - https://www.tenable.com/downloads/nessus | sed -n -e 's/.*name="authenticity_token" value="\(.*\)".*/\1/p') \
   \
   # Fetch the rpm
-  && curl --cookie /tmp/cookie -sSL -o /tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm \
-    --referer https://www.tenable.com/downloads/nessus --data-urlencode "authenticity_token=${TOKEN}" \
-    -d "utf8=%E2%9C%93&_method=get_download_file&i_agree_to_tenable_license_agreement=true&commit=I+Agree" \
-    "https://www.tenable.com/downloads/pages/${PAGE_ID}/downloads/${DOWNLOAD_ID}/get_download_file" \
+  && curl -sSL "https://www.tenable.com/downloads/pages/${PAGE_ID}/downloads/${DOWNLOAD_ID}/get_download_file" \
+    -o "/tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm" \
+    -H 'Origin: https://www.tenable.com' \
+    -H 'Referer: https://www.tenable.com/downloads/nessus' \
+    --cookie /tmp/cookie \
+    --data-urlencode "authenticity_token=${TOKEN}" \
+    --data 'utf8=%E2%9C%93&_method=get_download_file&i_agree_to_tenable_license_agreement=true&commit=I+Agree' \
+    --compressed
   \
   # Install the rpm
   && rpm -ivh /tmp/Nessus-${NESSUS_VERSION}-es7.x86_64.rpm \
